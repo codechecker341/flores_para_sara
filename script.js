@@ -41,6 +41,7 @@ window.onload = function() {
     } else {
         // En móviles: efectos simplificados
         setTimeout(initializeGardenEffectsMobile, 8000);
+        setTimeout(startMagicalParticlesMobile, 6000);
         setTimeout(startButterflyEffects, 10000);
     }
     
@@ -91,6 +92,87 @@ function startFlowerGlowMobile() {
             }
         }
     }, 8000); // Menos frecuente que en desktop
+}
+
+// Partículas mágicas optimizadas para móviles
+function startMagicalParticlesMobile() {
+    const colors = [
+        '#ffd700',     // Dorado
+        '#ff69b4',     // Rosa
+        '#9370db',     // Púrpura
+        '#ffffff',     // Blanco
+        '#32cd32'      // Verde
+    ];
+    
+    setInterval(() => {
+        if (Math.random() > 0.8) { // Menos frecuente
+            createMagicalParticleMobile(colors);
+        }
+    }, 4000); // Menos frecuente que en desktop
+}
+
+// Crear partícula mágica individual optimizada para móvil
+function createMagicalParticleMobile(colors) {
+    const particle = document.createElement('div');
+    const size = Math.random() * 1.2 + 0.6; // Más pequeñas
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const startX = Math.random() * 100;
+    const startY = Math.random() * 25 + 65; // Desde el suelo hacia arriba
+    
+    particle.style.cssText = `
+        position: fixed;
+        left: ${startX}vw;
+        bottom: ${startY}vh;
+        width: ${size}vmin;
+        height: ${size}vmin;
+        background: ${color};
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 15;
+        opacity: 0.8;
+        box-shadow: 0 0 2px ${color};
+        animation: magicalFloatMobile 6s ease-out forwards;
+    `;
+    
+    // Añadir animación CSS optimizada si no existe
+    if (!document.querySelector('#magicalFloatMobileStyle')) {
+        const style = document.createElement('style');
+        style.id = 'magicalFloatMobileStyle';
+        style.textContent = `
+            @keyframes magicalFloatMobile {
+                0% {
+                    opacity: 0;
+                    transform: translateY(0) translateX(0) scale(0.3);
+                }
+                20% {
+                    opacity: 0.9;
+                    transform: translateY(-12vh) translateX(-5vw) scale(1);
+                }
+                50% {
+                    opacity: 0.7;
+                    transform: translateY(-25vh) translateX(8vw) scale(0.8);
+                }
+                80% {
+                    opacity: 0.3;
+                    transform: translateY(-40vh) translateX(-3vw) scale(0.5);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateY(-60vh) translateX(0vw) scale(0.2);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(particle);
+    
+    // Limpiar partícula después de la animación
+    setTimeout(() => {
+        if (particle && particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+        }
+    }, 6000);
 }
 
 // Crear gotas de rocío en las hojas
