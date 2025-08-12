@@ -1,22 +1,51 @@
 // Script para el Jardín Mágico de Sara
 // Basado en el ejemplo original pero adaptado con nuevas funcionalidades
 
+// Detección de dispositivo móvil
+const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+const isTouch = 'ontouchstart' in window;
+
+// Prevenir zoom en móviles
+if (isMobile) {
+    document.addEventListener('gesturestart', function (e) {
+        e.preventDefault();
+    });
+    
+    document.addEventListener('touchstart', function(event) {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+    
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+}
+
 // Inicialización cuando la página carga
 window.onload = function() {
     // Remover la clase container para iniciar las animaciones
     document.body.classList.remove("container");
     
-    // Configurar efectos adicionales después de que crezcan las flores principales
-    setTimeout(initializeGardenEffects, 8000);
+    // Configurar efectos básicos siempre
+    if (!isMobile) {
+        // Solo en desktop: efectos más complejos
+        setTimeout(initializeGardenEffects, 8000);
+        setTimeout(startMagicalParticles, 6000);
+        setTimeout(startButterflyEffects, 10000);
+    } else {
+        // En móviles: efectos simplificados
+        setTimeout(initializeGardenEffectsMobile, 8000);
+        setTimeout(startButterflyEffects, 10000);
+    }
     
     // Configurar interactividad
     setupInteractivity();
-    
-    // Inicializar partículas mágicas
-    setTimeout(startMagicalParticles, 6000);
-    
-    // Inicializar efectos de mariposas
-    setTimeout(startButterflyEffects, 10000);
     
     console.log("🌸 El Jardín Mágico de Sara está creciendo...");
 };
@@ -33,6 +62,35 @@ function initializeGardenEffects() {
     animateSky();
     
     console.log("✨ Efectos mágicos activados");
+}
+
+// Efectos simplificados para móviles (mejor rendimiento)
+function initializeGardenEffectsMobile() {
+    // Solo brillo aleatorio simple en las flores (sin rocío ni animaciones complejas)
+    startFlowerGlowMobile();
+    
+    console.log("✨ Efectos mágicos móviles activados");
+}
+
+// Brillo simplificado para flores en móviles
+function startFlowerGlowMobile() {
+    const flowers = document.querySelectorAll('.flower__leafs');
+    
+    setInterval(() => {
+        if (Math.random() > 0.8) { // Menos frecuente
+            const randomFlower = flowers[Math.floor(Math.random() * flowers.length)];
+            if (randomFlower) {
+                // Efecto más simple sin filtros complejos
+                randomFlower.style.opacity = '1.2';
+                randomFlower.style.transform = 'scale(1.03)';
+                
+                setTimeout(() => {
+                    randomFlower.style.opacity = '';
+                    randomFlower.style.transform = '';
+                }, 2000);
+            }
+        }
+    }, 8000); // Menos frecuente que en desktop
 }
 
 // Crear gotas de rocío en las hojas
@@ -176,38 +234,69 @@ function createMagicalParticle(colors) {
 function setupInteractivity() {
     let clickCount = 0;
     
-    // Hacer clic para efectos especiales
-    document.body.addEventListener('click', function(event) {
-        clickCount++;
-        
-        // Efecto de ondas desde el punto de clic
-        createClickWave(event.clientX, event.clientY);
-        
-        // Cada 3 clicks, reiniciar algunas flores
-        if (clickCount % 3 === 0) {
-            restartFlowerSequence();
+    // Configurar eventos dependiendo del dispositivo
+    const eventType = isTouch ? 'touchstart' : 'click';
+    
+    // Hacer clic/touch para efectos especiales
+    document.body.addEventListener(eventType, function(event) {
+        // Prevenir comportamiento por defecto en móviles
+        if (isTouch && isMobile) {
+            event.preventDefault();
         }
         
-        // Crear burst de partículas en el punto de clic
-        createParticleBurst(event.clientX, event.clientY);
-    });
+        clickCount++;
+        
+        // Obtener coordenadas correctas para touch/click
+        const clientX = event.clientX || (event.touches && event.touches[0] ? event.touches[0].clientX : 0);
+        const clientY = event.clientY || (event.touches && event.touches[0] ? event.touches[0].clientY : 0);
+        
+        if (!isMobile) {
+            // Solo en desktop: efectos complejos
+            createClickWave(clientX, clientY);
+            createParticleBurst(clientX, clientY);
+        }
+        
+        // En ambos dispositivos: reinicio de flores (pero menos frecuente en móvil)
+        const resetFrequency = isMobile ? 5 : 3;
+        if (clickCount % resetFrequency === 0) {
+            restartFlowerSequence();
+        }
+    }, { passive: false });
     
-    // Efecto hover sutil en las flores
-    const flowers = document.querySelectorAll('.flower');
-    flowers.forEach(flower => {
-        flower.addEventListener('mouseenter', function() {
-            this.style.transform = this.style.transform + ' scale(1.02)';
-            this.style.filter = 'brightness(1.1)';
+    // Efectos hover/touch solo en desktop
+    if (!isMobile) {
+        // Efecto hover sutil en las flores
+        const flowers = document.querySelectorAll('.flower');
+        flowers.forEach(flower => {
+            flower.addEventListener('mouseenter', function() {
+                this.style.transform = this.style.transform + ' scale(1.02)';
+                this.style.filter = 'brightness(1.1)';
+            });
+            
+            flower.addEventListener('mouseleave', function() {
+                this.style.transform = this.style.transform.replace(' scale(1.02)', '');
+                this.style.filter = '';
+            });
         });
         
-        flower.addEventListener('mouseleave', function() {
-            this.style.transform = this.style.transform.replace(' scale(1.02)', '');
-            this.style.filter = '';
+        // Configurar interacción especial con mariposas
+        setupButterflyInteraction();
+    } else {
+        // En móviles: interacciones táctiles simplificadas
+        const flowers = document.querySelectorAll('.flower');
+        flowers.forEach(flower => {
+            flower.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                this.style.transform = this.style.transform + ' scale(1.02)';
+                this.style.opacity = '1.1';
+                
+                setTimeout(() => {
+                    this.style.transform = this.style.transform.replace(' scale(1.02)', '');
+                    this.style.opacity = '';
+                }, 500);
+            }, { passive: false });
         });
-    });
-    
-    // Configurar interacción especial con mariposas
-    setupButterflyInteraction();
+    }
 }
 
 // Crear onda desde el punto de clic
@@ -431,28 +520,48 @@ if (!document.querySelector('#petalFallStyle')) {
 function startButterflyEffects() {
     const butterflies = document.querySelectorAll('.butterfly');
     
-    // Brillo intermitente en las mariposas
-    setInterval(() => {
-        const randomButterfly = butterflies[Math.floor(Math.random() * butterflies.length)];
-        if (randomButterfly) {
-            randomButterfly.style.filter = 'brightness(1.6) drop-shadow(0 0 20px rgba(255, 215, 0, 0.9))';
-            randomButterfly.style.transform = randomButterfly.style.transform + ' scale(1.1)';
-            
-            setTimeout(() => {
-                randomButterfly.style.filter = '';
-                randomButterfly.style.transform = randomButterfly.style.transform.replace(' scale(1.1)', '');
-            }, 2500);
-        }
-    }, 6000);
-    
-    // Crear partículas de polvo mágico desde las mariposas
-    setInterval(() => {
-        butterflies.forEach((butterfly, index) => {
-            if (Math.random() > 0.8) {
-                createButterflyDust(butterfly, index);
+    if (!isMobile) {
+        // Versión completa para desktop
+        // Brillo intermitente en las mariposas
+        setInterval(() => {
+            const randomButterfly = butterflies[Math.floor(Math.random() * butterflies.length)];
+            if (randomButterfly) {
+                randomButterfly.style.filter = 'brightness(1.6) drop-shadow(0 0 20px rgba(255, 215, 0, 0.9))';
+                randomButterfly.style.transform = randomButterfly.style.transform + ' scale(1.1)';
+                
+                setTimeout(() => {
+                    randomButterfly.style.filter = '';
+                    randomButterfly.style.transform = randomButterfly.style.transform.replace(' scale(1.1)', '');
+                }, 2500);
             }
-        });
-    }, 3000);
+        }, 6000);
+        
+        // Crear partículas de polvo mágico desde las mariposas
+        setInterval(() => {
+            butterflies.forEach((butterfly, index) => {
+                if (Math.random() > 0.8) {
+                    createButterflyDust(butterfly, index);
+                }
+            });
+        }, 3000);
+    } else {
+        // Versión simplificada para móviles
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                const randomButterfly = butterflies[Math.floor(Math.random() * butterflies.length)];
+                if (randomButterfly) {
+                    // Efecto simple sin filtros complejos
+                    randomButterfly.style.opacity = '1.3';
+                    randomButterfly.style.transform = randomButterfly.style.transform + ' scale(1.05)';
+                    
+                    setTimeout(() => {
+                        randomButterfly.style.opacity = '';
+                        randomButterfly.style.transform = randomButterfly.style.transform.replace(' scale(1.05)', '');
+                    }, 2000);
+                }
+            }
+        }, 8000);
+    }
     
     console.log("🦋 Mariposas mágicas activadas");
 }
