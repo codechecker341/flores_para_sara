@@ -2135,10 +2135,69 @@ body {
 
 /* Media queries para dispositivos móviles */
 @media screen and (max-width: 768px) {
-  /* Reducir complejidad de animaciones en móviles */
-  .flower__light,
+  /* Versión móvil de las partículas de luz (polen) - sin blur para mejor rendimiento */
+  .flower__light {
+    filter: none !important; /* Quitar blur pesado */
+    width: 1.2vmin !important;
+    height: 1.2vmin !important;
+    animation-duration: 5s !important; /* Más lento para mejor rendimiento */
+    opacity: 0.9 !important;
+  }
+  
+  /* Colores específicos de polen por tipo de flor en móvil */
+  .flower--1 .flower__light { /* Girasol */
+    background: #ffd700 !important;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.9) !important;
+  }
+  
+  .flower--2 .flower__light { /* Rosa */
+    background: #ff69b4 !important;
+    box-shadow: 0 0 4px rgba(255, 105, 180, 0.9) !important;
+  }
+  
+  .flower--3 .flower__light { /* Lirio */
+    background: #e6e6fa !important;
+    box-shadow: 0 0 4px rgba(230, 230, 250, 0.9) !important;
+  }
+  
+  .flower--4 .flower__light { /* Violeta */
+    background: #9370db !important;
+    box-shadow: 0 0 4px rgba(147, 112, 219, 0.9) !important;
+  }
+  
+  .flower--5 .flower__light { /* Margarita */
+    background: #ffffff !important;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  .flower--6 .flower__light { /* Orquídea */
+    background: #ff1493 !important;
+    box-shadow: 0 0 4px rgba(255, 20, 147, 0.9) !important;
+  }
+  
+  .flower--7 .flower__light { /* Jazmín */
+    background: #f0f8ff !important;
+    box-shadow: 0 0 4px rgba(240, 248, 255, 0.9) !important;
+  }
+  
+  .flower--8 .flower__light { /* Iris */
+    background: #4b0082 !important;
+    box-shadow: 0 0 4px rgba(75, 0, 130, 0.9) !important;
+  }
+  
+  .flower--9 .flower__light { /* Peonía */
+    background: #ffb6c1 !important;
+    box-shadow: 0 0 4px rgba(255, 182, 193, 0.9) !important;
+  }
+  
+  .flower--10 .flower__light { /* Hibisco */
+    background: #dc143c !important;
+    box-shadow: 0 0 4px rgba(220, 20, 60, 0.9) !important;
+  }
+  
+  /* Ocultar luces de mariposas en móvil (menos importantes) */
   .butterfly__light {
-    display: none; /* Ocultar partículas para mejor rendimiento */
+    display: none;
   }
   
   /* Simplificar filtros complejos */
@@ -2160,11 +2219,7 @@ body {
     animation-duration: 2s; /* Animación más lenta para mejor rendimiento */
   }
   
-  /* Reducir blur en elementos para mejor rendimiento */
-  .butterfly__light,
-  .flower__light {
-    filter: none;
-  }
+  /* Optimizar otras animaciones sin quitar el polen */
 }
 
 @media screen and (max-width: 480px) {
