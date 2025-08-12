@@ -6,6 +6,24 @@
   box-sizing: border-box;
 }
 
+/* Optimizaciones para dispositivos móviles */
+html {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 :root {
   --dark-color: #000000;
   --primary-pink: #ff1493;
@@ -26,10 +44,20 @@ body {
   align-items: flex-end;
   justify-content: center;
   min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   background-color: var(--dark-color);
   overflow: hidden;
   perspective: 1200px;
   font-family: "Dancing Script", cursive;
+  position: fixed;
+  top: 0;
+  left: 0;
+  -webkit-overflow-scrolling: touch;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 .night {
@@ -2087,4 +2115,109 @@ body {
 /* Pausa todas las animaciones al inicio */
 .container * {
   animation-play-state: paused !important;
+}
+
+/* === OPTIMIZACIONES PARA DISPOSITIVOS MÓVILES === */
+
+/* Optimización de rendimiento para elementos animados */
+.flower,
+.butterfly,
+.flower__light,
+.butterfly__light,
+.grow-ans,
+.long-g {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+/* Media queries para dispositivos móviles */
+@media screen and (max-width: 768px) {
+  /* Reducir complejidad de animaciones en móviles */
+  .flower__light,
+  .butterfly__light {
+    display: none; /* Ocultar partículas para mejor rendimiento */
+  }
+  
+  /* Simplificar filtros complejos */
+  .night {
+    filter: none;
+    background-image: linear-gradient(135deg, #000000 0%, #000000 100%);
+  }
+  
+  /* Reducir la cantidad de elementos de césped */
+  .long-g:nth-child(n+4) {
+    display: none;
+  }
+  
+  /* Simplificar animaciones de mariposas */
+  .butterfly__wing-upper-left,
+  .butterfly__wing-upper-right,
+  .butterfly__wing-lower-left,
+  .butterfly__wing-lower-right {
+    animation-duration: 2s; /* Animación más lenta para mejor rendimiento */
+  }
+  
+  /* Reducir blur en elementos para mejor rendimiento */
+  .butterfly__light,
+  .flower__light {
+    filter: none;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Para pantallas muy pequeñas */
+  body {
+    perspective: 800px; /* Reducir perspectiva */
+  }
+  
+  /* Reducir tamaño de elementos */
+  .butterfly {
+    width: 8vmin;
+    height: 6vmin;
+  }
+  
+  .flower {
+    transform: scale(0.9);
+  }
+  
+  /* Simplificar más las animaciones */
+  .flower__leafs {
+    animation-duration: 4s; /* Más lento */
+  }
+  
+  /* Ocultar elementos decorativos adicionales */
+  .growing-grass:nth-child(n+2) {
+    display: none;
+  }
+}
+
+/* Optimizaciones específicas para iOS */
+@supports (-webkit-touch-callout: none) {
+  body {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
+  }
+  
+  /* Forzar aceleración por hardware */
+  .flower__leafs,
+  .butterfly__wings,
+  .butterfly__wing-upper-left,
+  .butterfly__wing-upper-right,
+  .butterfly__wing-lower-left,
+  .butterfly__wing-lower-right {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Prevenir zoom en dispositivos touch */
+@media screen and (pointer: coarse) {
+  * {
+    touch-action: manipulation;
+  }
 }
